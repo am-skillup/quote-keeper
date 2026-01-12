@@ -30,14 +30,8 @@ def list_quotes(author: Optional[str] = None, tag: Optional[str] = None, session
         results = [r for r in results if r.tags and tag in r.tags]
     return results
 
-@app.get("/quotes/{quote_id}", response_model=Quote)
-def get_quote(quote_id: int, session: Session = Depends(get_session)):
-    quote = session.get(Quote, quote_id)
-    if not quote:
-        raise HTTPException(status_code=404, detail="Quote not found")
-    return quote
-
 import random
+
 @app.get("/quotes/random", response_model=Quote)
 def random_quote(session: Session = Depends(get_session)):
     q = select(Quote)
@@ -45,6 +39,13 @@ def random_quote(session: Session = Depends(get_session)):
     if not results:
         raise HTTPException(status_code=404, detail="No quotes found")
     return random.choice(results)
+
+@app.get("/quotes/{quote_id}", response_model=Quote)
+def get_quote(quote_id: int, session: Session = Depends(get_session)):
+    quote = session.get(Quote, quote_id)
+    if not quote:
+        raise HTTPException(status_code=404, detail="Quote not found")
+    return quote
 
 @app.delete("/quotes/{quote_id}", status_code=204)
 def delete_quote(quote_id: int, session: Session = Depends(get_session)):
