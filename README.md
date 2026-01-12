@@ -100,6 +100,85 @@ The app is deployed on Render and is publicly available at:
 
 The CI includes a smoke test that verifies the deployed service responds at `/` and `/health` after a successful image publish.
 
+---
+
+## Deploy verification ✅
+
+If you want to manually verify the deployed site is serving the frontend and the API:
+
+1. Visit https://quote-keeper.onrender.com — you should see the frontend UI (check page title or that the form is visible).
+2. Check the health endpoint:
+
+```bash
+curl -sS https://quote-keeper.onrender.com/health | jq
+# expected: {"status":"ok","message":"alive"}
+```
+
+3. Perform a quick API smoke test (create + list):
+
+```bash
+curl -sS -X POST https://quote-keeper.onrender.com/quotes -H "Content-Type: application/json" -d '{"text":"Deploy test","author":"CI","tags":["smoke"]}' | jq
+curl -sS https://quote-keeper.onrender.com/quotes | jq
+```
+
+If any of these fail, check Render deploy logs and CI smoke-test job details in Actions.
+
+---
+
+## Project verification checklist (how to verify each grading criterion) ✅
+
+Use this checklist to verify evidence for each `README_project.md` criterion:
+
+1. Problem description
+- Verify: `README.md` contains a clear problem statement and feature list.
+- Command: open `README.md` and confirm the Problem and Features sections.
+
+2. AI system development (MCP)
+- Verify: `AGENTS.md` documents the agent/MCP workflow and permissions and `mcp/` contains example config.
+- Command: open `AGENTS.md` and `mcp/example_config.yaml`.
+
+3. Technologies & system architecture
+- Verify: `README.md` lists backend, frontend, DB, containerization and CI; architecture explanation present.
+- Command: open `README.md` Tech stack section.
+
+4. Front-end implementation
+- Verify: `frontend/` contains `index.html`, `main.js`, and tests `frontend/__tests__/ui.test.js` that pass.
+- Command: `cd frontend && npm ci && npm test` (CI runs this too).
+
+5. API contract (OpenAPI)
+- Verify: `openapi.yaml` lists endpoints and schemas matching backend behavior.
+- Command: open `openapi.yaml` and compare with `backend/app/main.py` routes; visit `/docs` on a running instance.
+
+6. Back-end implementation and tests
+- Verify: `backend/app/` routes match OpenAPI; `backend/tests/test_api.py` covers core flows and passes.
+- Command: `cd backend && pytest` and inspect tests and implementation files.
+
+7. Database integration
+- Verify: `backend/app/db.py` supports `DATABASE_URL` and the app runs with default SQLite and can be configured for Postgres.
+- Command: start app with `DATABASE_URL` set to a Postgres URL (if available) or run default SQLite locally.
+
+8. Containerization
+- Verify: `Dockerfile` and `docker-compose.yml` exist and `docker build` succeeds.
+- Command: `docker build -t quote-keeper .` and `docker-compose up --build`.
+
+9. Integration testing
+- Verify: backend tests exercise DB and endpoints; smoke tests validate deployed instance.
+- Command: `cd backend && pytest`; check CI `smoke-test` job for the deployed site.
+
+10. Deployment
+- Verify: a public deployment exists and responds (Render URL documented in README).
+- Command: Visit https://quote-keeper.onrender.com and run the smoke-test curl commands above.
+
+11. CI/CD pipeline
+- Verify: `.github/workflows/ci.yml` runs tests and publishes images; smoke-test verifies deployed site.
+- Command: open the Actions page for the repo and inspect recent workflow run results.
+
+12. Reproducibility
+- Verify: README and AGENTS.md provide instructions to set up, run, and test the system locally.
+- Command: follow the Quickstart steps in README and AGENTS.md and confirm tests run and app starts.
+
+If you want, I can add a small script that runs the full verification checklist automatically from the repo (a `verify.sh`), or add a GitHub Action that runs a subset of these checks on demand.
+
 
 4. Run backend tests:
 
