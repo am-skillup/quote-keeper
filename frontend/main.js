@@ -82,19 +82,32 @@ if (typeof window !== 'undefined') {
 
   async function loadQuotes(params = {}) {
     if (!ul) return;
-    try {
-      status && (status.textContent = 'Loading...');
-      const quotes = await fetchQuotes(params);
-      renderQuotes(quotes, ul);
-      status && (status.textContent = `Showing ${quotes.length} quotes`);
-    } catch (err) {
-      status && (status.textContent = 'Failed to load quotes: ' + err.message);
+    status && (status.textContent = 'Loading...');
+    // simple retry to mitigate transient network/deploy lag issues
+    const attempts = 3;
+    for (let i = 1; i <= attempts; i++) {
+      try {
+        const quotes = await fetchQuotes(params);
+        renderQuotes(quotes, ul);
+        status && (status.textContent = `Showing ${quotes.length} quotes`);
+        return;
+      } catch (err) {
+        console.error(`loadQuotes attempt ${i} failed`, err);
+        if (i === attempts) {
+          status && (status.textContent = 'Failed to load quotes: ' + err.message);
+          throw err;
+        }
+        // small wait before retrying
+        await new Promise(r => setTimeout(r, 300));
+      }
     }
   }
 
   if (form) {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
+      const submitBtn = form.querySelector('button[type="submit"]');
+      submitBtn && (submitBtn.disabled = true);
       const textEl = document.getElementById('text');
       const authorEl = document.getElementById('author');
       const tagsEl = document.getElementById('tags');
@@ -104,12 +117,23 @@ if (typeof window !== 'undefined') {
       try {
         await createQuote({ text, author, tags });
         status && (status.textContent = 'Quote created');
-        if (ul) {
-          await loadQuotes();
-        }
         form.reset();
+        // try to refresh, but do not treat refresh failures as create failures
+        try {
+          await loadQuotes();
+        } catch (err) {
+          console.error('Refresh after create failed', err);
+          status && (status.textContent = 'Quote created, but refresh failed: ' + err.message);
+          // schedule background retry
+          setTimeout(() => {
+            loadQuotes().catch(err2 => console.error('Background refresh failed', err2));
+          }, 1000);
+        }
       } catch (err) {
+        console.error('Create failed', err);
         status && (status.textContent = 'Create failed: ' + err.message);
+      } finally {
+        submitBtn && (submitBtn.disabled = false);
       }
     });
   }
