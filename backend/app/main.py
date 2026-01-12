@@ -12,6 +12,11 @@ app = FastAPI(title="Quote Keeper")
 def on_startup():
     create_db_and_tables()
 
+@app.get("/", include_in_schema=False)
+def root():
+    """Simple health endpoint used by PaaS providers and load balancers."""
+    return {"status": "ok", "message": "Quote Keeper API. See /docs for OpenAPI"}
+
 @app.post("/quotes", status_code=201)
 def create_quote(quote: QuoteCreate, session: Session = Depends(get_session)):
     db_quote = Quote.from_orm(quote)
