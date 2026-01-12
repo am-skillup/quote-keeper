@@ -94,27 +94,57 @@ def test_filter_by_author(client):
     assert r.json()[0]["author"] == "Alice"
 
 
-def test_list_empty_start(client):
+def test_pagination_and_filters(client):
+    # create 12 quotes for pagination
+    for i in range(12):
+        client.post("/quotes", json={"text": f"P{i}", "author": "Pager", "tags": ["p"] if i % 2 == 0 else []})
+
+    r = client.get("/quotes?limit=5&offset=0")
+    assert r.status_code == 200
+    assert len(r.json()) == 5
+
+    r = client.get("/quotes?limit=5&offset=5")
+    assert r.status_code == 200
+    assert len(r.json()) == 5
+
+    r = client.get("/quotes?limit=5&offset=10")
+    assert r.status_code == 200
+    assert len(r.json()) == 2
+
+    # filter by tag and pagination
+    r = client.get("/quotes?tag=p&limit=2&offset=0")
+    assert r.status_code == 200
+    assert len(r.json()) <= 2
+
+
+def test_list_empty_start():
     # create a fresh engine/session and verify listing when no quotes
-    import app.db as db
     from sqlalchemy import create_engine
+    from sqlmodel import SQLModel, Session as SQLSession
+    from sqlalchemy.pool import StaticPool
     engine = create_engine(
         "sqlite:///:memory:",
-        connect_args={"check_same_thread": False}
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
     )
-    from sqlmodel import SQLModel
     SQLModel.metadata.create_all(engine)
 
     # temporarily override get_session to use the fresh empty engine
-    from app.db import get_session as real_get_session
     def get_empty_session():
-        from sqlmodel import Session as SQLSession
         with SQLSession(engine) as s:
             yield s
-    app.dependency_overrides[real_get_session] = get_empty_session
 
-    r = client.get("/quotes")
-    assert r.status_code == 200
-    assert r.json() == []
+    from fastapi.testclient import TestClient
+    from app.db import get_session as default_get_session
 
-    app.dependency_overrides.pop(real_get_session, None)
+    # temporarily swap the app's engine for the empty engine to ensure no tables exist
+    import app.db as app_db
+    old_engine = app_db.engine
+    app_db.engine = engine
+    try:
+        with TestClient(app) as c:
+            r = c.get("/quotes")
+            assert r.status_code == 200
+            assert r.json() == []
+    finally:
+        app_db.engine = old_engine
