@@ -1,0 +1,83 @@
+openapi: 3.0.0
+info:
+  title: Quote Keeper API
+  version: 1.0.0
+paths:
+  /quotes:
+    get:
+      summary: List quotes
+      parameters:
+        - in: query
+          name: author
+          schema:
+            type: string
+        - in: query
+          name: tag
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of quotes
+    post:
+      summary: Create a quote
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuoteCreate'
+      responses:
+        '201':
+          description: Quote created
+  /quotes/{quote_id}:
+    get:
+      summary: Get quote by id
+      parameters:
+        - in: path
+          name: quote_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Quote found
+    delete:
+      summary: Delete quote by id
+      parameters:
+        - in: path
+          name: quote_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Quote deleted
+  /quotes/random:
+    get:
+      summary: Get a random quote
+      responses:
+        '200':
+          description: Random quote
+components:
+  schemas:
+    QuoteBase:
+      type: object
+      properties:
+        text:
+          type: string
+        author:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+    QuoteCreate:
+      allOf:
+        - $ref: '#/components/schemas/QuoteBase'
+    Quote:
+      allOf:
+        - $ref: '#/components/schemas/QuoteBase'
+        - type: object
+          properties:
+            id:
+              type: integer

@@ -1,0 +1,39 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  backend-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install backend deps
+        run: |
+          cd project/quote-keeper/backend
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run backend tests
+        run: |
+          cd project/quote-keeper/backend
+          pytest -q
+
+  frontend-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install frontend deps
+        run: |
+          cd project/quote-keeper/frontend
+          npm ci
+      - name: Run frontend tests
+        run: |
+          cd project/quote-keeper/frontend
+          npm test --silent
