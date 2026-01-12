@@ -69,3 +69,40 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository_owner }}/quote-keeper:latest
             ghcr.io/${{ github.repository_owner }}/quote-keeper:${{ github.sha }}
+
+  smoke-test:
+    # wait for deploy and verify the public site responds
+    if: github.ref == 'refs/heads/main'
+    needs: publish-image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for Render deploy and check site is up
+        run: |
+          URL="https://quote-keeper.onrender.com"
+          echo "Checking $URL up to 20 times with 6s wait"
+          STATUS=0
+          for i in $(seq 1 20); do
+            echo "Attempt $i"
+            # check root
+            code=$(curl -s -o /dev/null -w "%{http_code}" "$URL" || true)
+            if [ "$code" = "200" ]; then
+              echo "Root responded 200"
+              STATUS=200
+              break
+            fi
+            sleep 6
+          done
+          if [ "$STATUS" != "200" ]; then
+            echo "Root did not respond with 200 (last code: $code)"
+            exit 1
+          fi
+          # check health endpoint
+          health_code=$(curl -s -o /dev/null -w "%{http_code}" "$URL/health" || true)
+          if [ "$health_code" != "200" ]; then
+            echo "/health returned $health_code"
+            exit 1
+          fi
+          # quick content check
+          content=$(curl -s "$URL" | head -n 200)
+          echo "$content" | grep -q "<title>Quote Keeper</title>" || (echo "Index page content unexpected" && exit 1)
+

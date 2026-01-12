@@ -89,6 +89,18 @@ docker-compose up --build
 
 This will start the backend; adjust `DATABASE_URL` as needed in your environment or extend the compose file to include a database service.
 
+---
+
+## Deployment
+
+The app is deployed on Render and is publicly available at:
+
+- https://quote-keeper.onrender.com — frontend served at `/`
+- Health endpoint: `https://quote-keeper.onrender.com/health` (returns 200 JSON)
+
+The CI includes a smoke test that verifies the deployed service responds at `/` and `/health` after a successful image publish.
+
+
 4. Run backend tests:
 
 ```bash
