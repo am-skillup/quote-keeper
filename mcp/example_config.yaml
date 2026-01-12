@@ -1,0 +1,29 @@
+# Minimal example MCP plugin configuration
+# This is illustrative only — adapt to your MCP server's schema.
+plugin:
+  name: quote-keeper-test-plugin
+  description: "Expose test and workspace commands for the Quote Keeper repo"
+  commands:
+    - id: run-backend-tests
+      run: "cd backend && pytest -q"
+      description: "Run backend pytest suite"
+    - id: run-frontend-tests
+      run: "cd frontend && npm ci && npm test --silent"
+      description: "Run frontend jest tests"
+    - id: run-lint
+      run: "flake8 . || true"
+      description: "Run linter (non-fatal)"
+    - id: run-git-status
+      run: "git status --porcelain"
+      description: "Inspect git status"
+    - id: run-shell
+      run: "/bin/bash -lc \"$COMMAND\""
+      description: "Run an arbitrary allowed command (controlled by server policy)"
+policy:
+  allow_edit_files: true
+  allowed_paths:
+    - backend/**
+    - frontend/**
+    - README.md
+    - AGENTS.md
+    - .github/workflows/**
