@@ -1,5 +1,7 @@
 # Quote Keeper ✅
 
+[![CI](https://github.com/am-skillup/quote-keeper/actions/workflows/ci.yml/badge.svg)](https://github.com/am-skillup/quote-keeper/actions/workflows/ci.yml)
+
 A small, easy-to-implement project to store, list and retrieve favorite quotes via a simple REST API and a tiny frontend.
 
 ## Problem
@@ -61,13 +63,21 @@ cd backend
 pytest
 ```
 
-5. Run frontend tests:
+5. Run frontend tests (requires Node.js, recommended >= 18):
 
 ```bash
 cd frontend
-npm install
+npm ci
 npm test
 ```
+
+---
+
+## Continuous Integration
+
+- This repository uses GitHub Actions to run the test suite on every push and pull request. The CI workflow runs backend tests (pytest) and frontend tests (Jest).
+- The CI status badge is shown at the top of this README and links to the workflow runs.
+- If you need to reproduce the CI environment locally, run the backend and frontend test commands above. If frontend tests fail locally, ensure Node and npm are installed and match the CI Node version (20).
 
 ---
 
