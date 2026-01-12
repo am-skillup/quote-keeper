@@ -6,23 +6,32 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h1>Quote Keeper</h1>
-  <form id="addForm">
-    <input id="text" placeholder="Quote text" required />
-    <input id="author" placeholder="Author" />
-    <input id="tags" placeholder="comma-separated tags" />
-    <button type="submit">Add</button>
-  </form>
+  <div class="container">
+    <div class="card">
+      <h1>Quote Keeper</h1>
+      <p class="lead">Save and browse short memorable quotes. Add new quotes, search by author or tag, get a random quote, and manage entries via the UI.</p>
 
-  <div id="controls">
-    <input id="filter-author" placeholder="Filter by author" />
-    <input id="filter-tag" placeholder="Filter by tag" />
-    <button id="filter-btn">Filter</button>
-    <button id="random-btn">Random</button>
-    <span id="status" style="margin-left:12px"></span>
+      <form id="addForm">
+        <input id="text" placeholder="Quote text" required />
+        <input id="author" placeholder="Author" />
+        <input id="tags" placeholder="comma-separated tags" />
+        <button type="submit">Add</button>
+      </form>
+
+      <div id="controls">
+        <input id="filter-author" placeholder="Filter by author" />
+        <input id="filter-tag" placeholder="Filter by tag" />
+        <button id="filter-btn">Filter</button>
+        <button id="random-btn">Random</button>
+        <span id="status"></span>
+      </div>
+
+      <ul id="quotes"></ul>
+
+      <hr />
+      <p class="muted">View API docs at <a href="/docs">/docs</a>.</p>
+    </div>
   </div>
-
-  <ul id="quotes"></ul>
 
   <script src="main.js"></script>
 </body>

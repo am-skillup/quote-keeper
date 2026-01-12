@@ -13,12 +13,14 @@ html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe 
 .container{max-width:900px;margin:36px auto;padding:20px}
 .card{background:var(--card);border-radius:8px;padding:18px;box-shadow:0 1px 3px rgba(16,24,40,0.04),0 1px 2px rgba(16,24,40,0.06)}
 
-h1{margin:0 0 12px;font-size:22px}
+h1{margin:0 0 8px;font-size:26px}
+.lead{color:var(--muted);margin:0 0 16px;font-size:15px}
 
 form#addForm{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
 form#addForm input{flex:1 1 150px;padding:10px;border-radius:6px;border:1px solid #e6e9ef}
 form#addForm button{background:var(--accent);color:white;border:none;padding:10px 14px;border-radius:6px;cursor:pointer}
 form#addForm button:active{transform:translateY(1px)}
+form#addForm button:disabled{opacity:0.6;cursor:default}
 
 #controls{display:flex;gap:8px;align-items:center;margin:12px 0 18px}
 #controls input{padding:8px;border-radius:6px;border:1px solid #e6e9ef}
