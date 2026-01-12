@@ -21,11 +21,11 @@ def create_quote(quote: QuoteCreate, session: Session = Depends(get_session)):
     return db_quote
 
 @app.get("/quotes", response_model=List[Quote])
-def list_quotes(author: Optional[str] = None, tag: Optional[str] = None, session: Session = Depends(get_session)):
+def list_quotes(author: Optional[str] = None, tag: Optional[str] = None, limit: int = 100, offset: int = 0, session: Session = Depends(get_session)):
     q = select(Quote)
     if author:
         q = q.where(Quote.author == author)
-    results = session.exec(q).all()
+    results = session.exec(q.offset(offset).limit(limit)).all()
     if tag:
         results = [r for r in results if r.tags and tag in r.tags]
     return results
