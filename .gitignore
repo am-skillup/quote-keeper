@@ -49,3 +49,8 @@ node_modules/
 
 # Ignore Python virtual environment inside project if present
 .venv/*
+
+# Local SQLite DB used for development
+quotes.db
+# or ignore all local DB files
+# *.db
