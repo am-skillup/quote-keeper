@@ -12,10 +12,20 @@ app = FastAPI(title="Quote Keeper")
 def on_startup():
     create_db_and_tables()
 
-@app.get("/", include_in_schema=False)
-def root():
+@app.get("/health", include_in_schema=False)
+def health():
     """Simple health endpoint used by PaaS providers and load balancers."""
-    return {"status": "ok", "message": "Quote Keeper API. See /docs for OpenAPI"}
+    return {"status": "ok", "message": "alive"}
+
+# Serve frontend static files from the `frontend` directory when deployed as a single service
+from pathlib import Path
+from fastapi.staticfiles import StaticFiles
+
+# compute path relative to backend package: backend/frontend
+_frontend_dir = Path(__file__).resolve().parents[1] / "frontend"
+if _frontend_dir.exists():
+    # mount static files at the root to allow index and assets to be served at '/'
+    app.mount("/", StaticFiles(directory=str(_frontend_dir), html=True), name="frontend")
 
 @app.post("/quotes", status_code=201)
 def create_quote(quote: QuoteCreate, session: Session = Depends(get_session)):
