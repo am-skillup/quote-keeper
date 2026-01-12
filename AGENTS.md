@@ -3,11 +3,11 @@
 This file contains concise instructions for coding agents (or assistants) focused on the Quote Keeper project. Use this to scope the agent's actions and provide the context required to implement, test and extend features.
 
 ## Repo location
-- Project root: `project/quote-keeper`
-- Backend app: `project/quote-keeper/backend/app`
-- OpenAPI: `project/quote-keeper/openapi.yaml`
-- Frontend: `project/quote-keeper/frontend`
-- Tests: `project/quote-keeper/backend/tests` and `project/quote-keeper/frontend/__tests__`
+- Project root: `/`
+- Backend app: `/backend/app`
+- OpenAPI: `/openapi.yaml`
+- Frontend: `/frontend`
+- Tests: `/backend/tests` and `/frontend/__tests__`
 
 ## How to run locally
 - Backend (dev):
@@ -28,8 +28,8 @@ This file contains concise instructions for coding agents (or assistants) focuse
 - DELETE /quotes/{id} — delete a quote
 
 ## Agent permissions and constraints
-- Allowed: modify files under `project/quote-keeper/*`, add tests, run unit/integration tests, and update docs.
-- Not allowed: change files outside `project/quote-keeper` without explicit instruction.
+- Allowed: modify files under `/*`, add tests, run unit/integration tests, and update docs.
+- Not allowed: change files outside `/` without explicit instruction.
 - Prefer small, test-backed changes. Create failing tests first if behavior change is non-trivial.
 
 ## Typical tasks & how the agent should approach them
