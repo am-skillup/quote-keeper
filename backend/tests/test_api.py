@@ -74,3 +74,47 @@ def test_create_and_get_quote(client):
 
     r = client.get(f"/quotes/{qid}")
     assert r.status_code == 404
+
+
+def test_validation_rejects_missing_text(client):
+    payload = {"author": "No Text", "tags": []}
+    r = client.post("/quotes", json=payload)
+    assert r.status_code == 422
+
+
+def test_filter_by_author(client):
+    a1 = {"text": "One", "author": "Alice", "tags": []}
+    a2 = {"text": "Two", "author": "Bob", "tags": ["x"]}
+    client.post("/quotes", json=a1)
+    client.post("/quotes", json=a2)
+
+    r = client.get("/quotes?author=Alice")
+    assert r.status_code == 200
+    assert len(r.json()) == 1
+    assert r.json()[0]["author"] == "Alice"
+
+
+def test_list_empty_start(client):
+    # create a fresh engine/session and verify listing when no quotes
+    import app.db as db
+    from sqlalchemy import create_engine
+    engine = create_engine(
+        "sqlite:///:memory:",
+        connect_args={"check_same_thread": False}
+    )
+    from sqlmodel import SQLModel
+    SQLModel.metadata.create_all(engine)
+
+    # temporarily override get_session to use the fresh empty engine
+    from app.db import get_session as real_get_session
+    def get_empty_session():
+        from sqlmodel import Session as SQLSession
+        with SQLSession(engine) as s:
+            yield s
+    app.dependency_overrides[real_get_session] = get_empty_session
+
+    r = client.get("/quotes")
+    assert r.status_code == 200
+    assert r.json() == []
+
+    app.dependency_overrides.pop(real_get_session, None)

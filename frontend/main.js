@@ -26,20 +26,28 @@ function renderQuotes(quotes, container) {
 if (typeof window !== 'undefined') {
   const ul = document.getElementById('quotes');
   const form = document.getElementById('addForm');
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const text = document.getElementById('text').value;
-    const author = document.getElementById('author').value;
-    const tags = document.getElementById('tags').value.split(',').map(s => s.trim()).filter(Boolean);
-    await createQuote({ text, author, tags });
-    const quotes = await fetchQuotes();
-    renderQuotes(quotes, ul);
-    form.reset();
-  });
-  (async () => {
-    const quotes = await fetchQuotes();
-    renderQuotes(quotes, ul);
-  })();
+
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const text = document.getElementById('text').value;
+      const author = document.getElementById('author').value;
+      const tags = document.getElementById('tags').value.split(',').map(s => s.trim()).filter(Boolean);
+      await createQuote({ text, author, tags });
+      if (ul) {
+        const quotes = await fetchQuotes();
+        renderQuotes(quotes, ul);
+      }
+      form.reset();
+    });
+  }
+
+  if (ul) {
+    (async () => {
+      const quotes = await fetchQuotes();
+      renderQuotes(quotes, ul);
+    })();
+  }
 }
 
 module.exports = { renderQuotes };
