@@ -17,15 +17,6 @@ def health():
     """Simple health endpoint used by PaaS providers and load balancers."""
     return {"status": "ok", "message": "alive"}
 
-# Serve frontend static files from the `frontend` directory when deployed as a single service
-from pathlib import Path
-from fastapi.staticfiles import StaticFiles
-
-# compute path relative to backend package: backend/frontend
-_frontend_dir = Path(__file__).resolve().parents[1] / "frontend"
-if _frontend_dir.exists():
-    # mount static files at the root to allow index and assets to be served at '/'
-    app.mount("/", StaticFiles(directory=str(_frontend_dir), html=True), name="frontend")
 
 @app.post("/quotes", status_code=201)
 def create_quote(quote: QuoteCreate, session: Session = Depends(get_session)):
@@ -70,3 +61,15 @@ def delete_quote(quote_id: int, session: Session = Depends(get_session)):
     session.delete(quote)
     session.commit()
     return None
+
+# Serve frontend static files from the `frontend` directory when deployed as a single service
+from pathlib import Path
+from fastapi.staticfiles import StaticFiles
+
+# compute path relative to backend package: backend/frontend
+_frontend_dir = Path(__file__).resolve().parents[1] / "frontend"
+if _frontend_dir.exists():
+    # mount static files at the root to allow index and assets to be served at '/'
+    # Mounting AFTER the API routes ensures API endpoints take precedence (prevents StaticFiles from
+    # intercepting POST/DELETE methods for API paths).
+    app.mount("/", StaticFiles(directory=str(_frontend_dir), html=True), name="frontend")
