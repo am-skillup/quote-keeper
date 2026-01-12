@@ -21,20 +21,6 @@ Many people save memorable quotes in multiple places. This project provides a si
 - Containerization: Docker
 - CI: GitHub Actions (run tests)
 
-## Acceptance mapping (course criteria)
-- Problem description: Covered in this README (criteria 1)
-- AI system dev: Not required for this simple closed project, doc will say how to add AI agent later (criteria 2)
-- Technologies & architecture: Documented above (criteria 3)
-- Front-end implementation: Minimal functional frontend provided; tests included (criteria 4)
-- API contract: `openapi.yaml` provided (criteria 5)
-- Back-end implementation: FastAPI app follows the OpenAPI contract and includes tests (criteria 6)
-- Database integration: SQLite is used and documented (criteria 7)
-- Containerization: Dockerfile and docker-compose included (criteria 8)
-- Integration testing: Backend tests cover key workflows (criteria 9)
-- Deployment: Docker image can be built locally; instructions provided (criteria 10)
-- CI/CD pipeline: GitHub Actions workflow runs tests (criteria 11)
-- Reproducibility: All instructions to run and test locally are included below (criteria 12)
-
 ---
 
 ## Quickstart (local)
@@ -121,13 +107,26 @@ curl -sS -X POST https://quote-keeper.onrender.com/quotes -H "Content-Type: appl
 curl -sS https://quote-keeper.onrender.com/quotes | jq
 ```
 
-If any of these fail, check Render deploy logs and CI smoke-test job details in Actions.
+4. Run backend tests:
+
+```bash
+cd backend
+pytest
+```
+
+5. Run frontend tests (requires Node.js, recommended >= 18):
+
+```bash
+cd frontend
+npm ci
+npm test
+```
 
 ---
 
 ## Project verification checklist (how to verify each grading criterion) ✅
 
-Use this checklist to verify evidence for each `README_project.md` criterion:
+Use this checklist to verify evidence for each criterion:
 
 1. Problem description
 - Verify: `README.md` contains a clear problem statement and feature list.
@@ -177,24 +176,6 @@ Use this checklist to verify evidence for each `README_project.md` criterion:
 - Verify: README and AGENTS.md provide instructions to set up, run, and test the system locally.
 - Command: follow the Quickstart steps in README and AGENTS.md and confirm tests run and app starts.
 
-If you want, I can add a small script that runs the full verification checklist automatically from the repo (a `verify.sh`), or add a GitHub Action that runs a subset of these checks on demand.
-
-
-4. Run backend tests:
-
-```bash
-cd backend
-pytest
-```
-
-5. Run frontend tests (requires Node.js, recommended >= 18):
-
-```bash
-cd frontend
-npm ci
-npm test
-```
-
 ---
 
 ## Continuous Integration
@@ -202,6 +183,7 @@ npm test
 - This repository uses GitHub Actions to run the test suite on every push and pull request. The CI workflow runs backend tests (pytest) and frontend tests (Jest).
 - The CI status badge is shown at the top of this README and links to the workflow runs.
 - If you need to reproduce the CI environment locally, run the backend and frontend test commands above. If frontend tests fail locally, ensure Node and npm are installed and match the CI Node version (20).
+- The CD workflow is handled by Render and deploys automatically after every commit in the main branch of this repo.
 
 ---
 
@@ -210,7 +192,3 @@ npm test
 - `openapi.yaml` — API contract
 - `frontend/` — static frontend
 - `AGENTS.md` — instructions for coding agents focused on this project
-
----
-
-If you'd like, I can now implement the backend and tests. 
