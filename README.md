@@ -55,6 +55,39 @@ uvicorn app.main:app --reload --port 8000
 
 3. Open the frontend:
 Open `frontend/index.html` in your browser and point it to `http://localhost:8000` (or serve it with a small static server).
+---
+
+### Database environment (optional)
+
+By default the app uses a local SQLite file (`sqlite:///./quotes.db`). To use a different database, set the `DATABASE_URL` environment variable before starting the app. Examples:
+
+```bash
+# Use an on-disk SQLite file (relative to working dir)
+export DATABASE_URL="sqlite:///./quotes.db"
+
+# Example: PostgreSQL (replace with your credentials)
+export DATABASE_URL="postgresql://postgres:password@localhost:5432/quotes"
+```
+
+When running inside Docker you can mount a host directory to persist the SQLite file, e.g.:
+
+```bash
+mkdir -p data
+# build image
+docker build -t quote-keeper .
+# run and persist DB in ./data on host (note 4 slashes for absolute path inside container)
+docker run --rm -p 8000:8000 -v "$(pwd)/data":/data -e DATABASE_URL="sqlite:////data/quotes.db" quote-keeper
+```
+
+### Run via docker-compose
+
+The included `docker-compose.yml` builds the `backend` service. From the project root you can run:
+
+```bash
+docker-compose up --build
+```
+
+This will start the backend; adjust `DATABASE_URL` as needed in your environment or extend the compose file to include a database service.
 
 4. Run backend tests:
 
