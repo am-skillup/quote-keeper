@@ -10,13 +10,40 @@ async function fetchQuotes(params = {}) {
 }
 
 async function createQuote({ text, author, tags }) {
-  const r = await fetch(`${API_BASE}/quotes`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text, author, tags })
-  });
-  if (!r.ok) throw new Error(`Failed to create quote: ${r.status}`);
-  return await r.json();
+  // retry transient failures (network errors or 5xx responses)
+  const attempts = 3;
+  for (let i = 1; i <= attempts; i++) {
+    try {
+      const r = await fetch(`${API_BASE}/quotes`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text, author, tags })
+      });
+
+      if (r.ok) return await r.json();
+
+      // parse error body if available
+      let bodyText = '';
+      try { bodyText = await r.text(); } catch (e) { /* ignore */ }
+
+      // server-side error that might be transient
+      if (r.status >= 500 && i < attempts) {
+        console.warn(`createQuote attempt ${i} got ${r.status}, retrying...`);
+        await new Promise(r => setTimeout(r, 300 * i));
+        continue;
+      }
+
+      throw new Error(`Server error: ${r.status} ${bodyText}`);
+    } catch (err) {
+      // network error or other exception
+      if (i < attempts) {
+        console.warn(`createQuote attempt ${i} failed: ${err.message}, retrying...`);
+        await new Promise(r => setTimeout(r, 300 * i));
+        continue;
+      }
+      throw err;
+    }
+  }
 }
 
 async function deleteQuote(id) {
